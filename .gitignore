@@ -1,0 +1,51 @@
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+config/local.php
+config/*.local.php
+
+# Runtime logs and temporary files
+*.log
+*.tmp
+*.temp
+*.cache
+*.bak
+*.swp
+Thumbs.db
+.DS_Store
+
+# User-uploaded and generated files
+uploads/*
+!uploads/.gitkeep
+libs/phpqrcode/cache/
+libs/phpqrcode/temp/
+libs/phpqrcode/*.png
+libs/phpqrcode/*-errors.txt
+
+# Installed dependencies (restore with Composer)
+vendor/
+
+# Editor and local tooling
+.idea/
+.vscode/
+.phpunit.result.cache
+
+# Full database snapshots containing local/company data
+database_backups/*before*.sql
+database_backups/*backup*.sql
+database_backups/asset_module_before_fix_*.sql
+database_backups/public_qr_borrow_before_*.sql
+database_backups/purchase_cleanup_*.sql
+
+# Archives and database dumps
+*.zip
+*.rar
+*.7z
+*.tar
+*.gz
+*.sql.gz
+
+# Local-only test entry points
+test_*.php
+_*.php
