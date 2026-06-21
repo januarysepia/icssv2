@@ -128,17 +128,52 @@ if(isset($_POST['login'])){
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
           rel="stylesheet">
+    <style>
+        body.login-page{
+            min-height:100vh;
+            margin:0;
+        }
+
+        .login-shell{
+            min-height:100vh;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            padding:24px 16px;
+        }
+
+        .login-card{
+            width:100%;
+            max-width:420px;
+            overflow:hidden;
+            border-radius:12px;
+        }
+
+        .login-card .card-header{
+            padding:16px;
+        }
+
+        .login-card .card-body{
+            padding:22px;
+        }
+
+        @media(max-width:576px){
+            .login-shell{
+                padding:16px 12px;
+            }
+
+            .login-card .card-body{
+                padding:18px;
+            }
+        }
+    </style>
 </head>
 
-<body class="bg-light">
+<body class="bg-light login-page">
 
-<div class="container mt-5">
+<main class="login-shell">
 
-    <div class="row justify-content-center">
-
-        <div class="col-md-4">
-
-            <div class="card shadow border-0">
+            <div class="card shadow border-0 login-card">
 
                 <div class="card-header bg-dark text-white text-center">
                     <h4 class="mb-0">ICSS v2 ERP Login</h4>
@@ -189,11 +224,7 @@ if(isset($_POST['login'])){
 
             </div>
 
-        </div>
-
-    </div>
-
-</div>
+ </main>
 
 </body>
 </html>
