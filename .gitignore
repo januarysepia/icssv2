@@ -18,6 +18,9 @@ Thumbs.db
 # User-uploaded and generated files
 uploads/*
 !uploads/.gitkeep
+!uploads/*/
+uploads/*/*
+!uploads/*/.gitkeep
 libs/phpqrcode/cache/
 libs/phpqrcode/temp/
 libs/phpqrcode/*.png

@@ -137,7 +137,13 @@ if(isset($_FILES['drawing_file']) && $_FILES['drawing_file']['name'] != ''){
     }
 
     $new_name = bin2hex(random_bytes(16)) . '.' . $allowed_types[$mime];
-    $upload_path = "../uploads/drawings/" . $new_name;
+    $upload_dir = __DIR__ . '/../uploads/drawings';
+
+    if (!is_dir($upload_dir) && !mkdir($upload_dir, 0775, true)) {
+        exit('Unable to prepare the drawing upload folder.');
+    }
+
+    $upload_path = $upload_dir . DIRECTORY_SEPARATOR . $new_name;
 
     if (!move_uploaded_file($file['tmp_name'], $upload_path)) {
         exit('Unable to store the drawing.');
