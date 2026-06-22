@@ -11,32 +11,10 @@ include '../includes/create_notification.php';
 include '../config/database.php';
 include '../includes/activity_logger.php';
 include '../includes/jo_audit.php';
+include '../includes/jo_number.php';
 
 require_post();
 verify_csrf();
-
-/*
-AUTO GENERATE JO NUMBER
-*/
-
-$year = date('Y');
-
-$last = $conn->query("
-SELECT jo_no
-FROM job_orders
-WHERE jo_no LIKE 'JO-$year-%'
-ORDER BY CAST(SUBSTRING_INDEX(jo_no, '-', -1) AS UNSIGNED) DESC
-LIMIT 1
-")->fetch_assoc();
-
-if($last){
-    $last_number = intval(substr($last['jo_no'], -3));
-    $next_number = $last_number + 1;
-}else{
-    $next_number = 1;
-}
-
-$jo_no = 'JO-' . $year . '-' . str_pad($next_number, 3, '0', STR_PAD_LEFT);
 
 /*
 FORM DATA
@@ -91,32 +69,45 @@ $creator_name = $_SESSION['fullname'] ?? $_SESSION['name'] ?? 'User';
 INSERT JO
 */
 
-$insert = $conn->prepare("
-    INSERT INTO job_orders
-    (
-        jo_no, client_name, project_name, engineer_name, sales_name,
-        release_date, due_date, created_by, workflow_status, overall_status
-    )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'For Validation', 'Pending')
-");
-$insert->bind_param(
-    'sssssssi',
-    $jo_no,
-    $client_name,
-    $project_name,
-    $engineer_name,
-    $sales_name,
-    $release_date,
-    $due_date,
-    $created_by
-);
+$jo_no = '';
+$jo_id = 0;
+$max_attempts = 5;
 
-if (!$insert->execute()) {
-    http_response_code(500);
-    exit('Unable to create the job order.');
+for ($attempt = 1; $attempt <= $max_attempts; $attempt++) {
+    $jo_no = getNextJobOrderNumber($conn);
+
+    $insert = $conn->prepare("
+        INSERT INTO job_orders
+        (
+            jo_no, client_name, project_name, engineer_name, sales_name,
+            release_date, due_date, created_by, workflow_status, overall_status
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'For Validation', 'Pending')
+    ");
+    $insert->bind_param(
+        'sssssssi',
+        $jo_no,
+        $client_name,
+        $project_name,
+        $engineer_name,
+        $sales_name,
+        $release_date,
+        $due_date,
+        $created_by
+    );
+
+    try {
+        $insert->execute();
+        $jo_id = $conn->insert_id;
+        break;
+    } catch (mysqli_sql_exception $e) {
+        if ((int) $e->getCode() !== 1062 || $attempt === $max_attempts) {
+            error_log('Unable to create JO: ' . $e->getMessage());
+            http_response_code(500);
+            exit('Unable to create the job order. Please try again.');
+        }
+    }
 }
-
-$jo_id = $conn->insert_id;
 
 /*
 UPLOAD DRAWING FILE

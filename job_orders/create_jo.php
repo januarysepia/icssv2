@@ -9,30 +9,14 @@ require_role([
 ]);
 
 include '../config/database.php';
+include '../includes/jo_number.php';
 
 /*
 Preview next JO number
 Actual JO number is still generated in save_jo.php
 */
 
-$year = date('Y');
-
-$last = $conn->query("
-SELECT jo_no
-FROM job_orders
-WHERE jo_no LIKE 'JO-$year-%'
-ORDER BY CAST(SUBSTRING_INDEX(jo_no, '-', -1) AS UNSIGNED) DESC
-LIMIT 1
-")->fetch_assoc();
-
-if($last){
-    $last_number = intval(substr($last['jo_no'], -3));
-    $next_number = $last_number + 1;
-}else{
-    $next_number = 1;
-}
-
-$preview_jo_no = 'JO-' . $year . '-' . str_pad($next_number, 3, '0', STR_PAD_LEFT);
+$preview_jo_no = getNextJobOrderNumber($conn);
 
 $engineers = $conn->query("
     SELECT fullname
